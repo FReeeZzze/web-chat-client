@@ -1,0 +1,27 @@
+.side {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #575757;
+  input::placeholder {
+    color: rgba(0, 0, 0, 0.5);
+  }
+  .linkedYou {
+    color:#398fff;
+    margin-right: 5px;
+  }
+  .search {
+    height: 40px;
+    width: 50vh;
+    margin: 15px 10px 0 auto;
+    border-radius: 5px;
+    text-indent: 5%;
+    border: none;
+    &:focus {
+      outline: none;
+    }
+  }
+  .users {
+    margin-top: 15px;
+    height: 100%;
+  }
+}

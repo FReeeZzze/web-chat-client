@@ -1,0 +1,133 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true,
+        "node": true
+    },
+    "extends": [
+        "plugin:react/recommended",
+        "airbnb",
+        "plugin:import/errors",
+        "plugin:import/warnings",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended",
+        "prettier/@typescript-eslint",
+        "prettier",
+        "prettier/react",
+        "plugin:prettier/recommended"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "globals": {
+        "React": "writable",
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly"
+    },
+    "parserOptions": {
+        "project": "./tsconfig.json",
+        "ecmaFeatures": {
+            "jsx": true
+        },
+        "ecmaVersion": 2020,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "@typescript-eslint",
+        "react",
+        "react-hooks",
+        "prettier",
+        "import"
+    ],
+    "rules": {
+        "camelcase": "off",
+        "@typescript-eslint/ban-types": [
+            "error",
+            {
+                "extendDefaults": true,
+                "types": {
+                    "{}": false
+                }
+            }
+        ],
+        "import/extensions": [
+            "error",
+            "ignorePackages",
+            {
+                "js": "never",
+                "jsx": "never",
+                "ts": "never",
+                "tsx": "never"
+            }
+        ],
+        "no-undef": "off",
+        "array-callback-return": "warn",
+        "consistent-return": "warn",
+        "no-unused-vars": "off",
+        "no-console": "off",
+        "no-restricted-syntax": [
+            "error",
+            {
+                "selector": "CallExpression[callee.object.name='console'][callee.property.name!=/^(log|warn|error|info|trace)$/]",
+                "message": "Unexpected property on console object was called"
+            }
+        ],
+        "prefer-const": "off",
+        "prefer-destructuring": "off",
+        "no-shadow": "off",
+        "react/no-array-index-key": "off",
+        "indent": 0,
+        "no-tabs": 0,
+        "eol-last": ["error", "always"],
+        "react/jsx-indent": 0,
+        "react/jsx-indent-props": 0,
+        "react/forbid-prop-types": 0,
+        "react/require-default-props": 0,
+        "react/react-in-jsx-scope": "off",
+        "react/jsx-uses-react": "error",
+        "import/no-unresolved": [2, {
+            "commonjs": true, "amd": true}],
+        "import/named": 2,
+        "import/namespace": 2,
+        "import/default": 2,
+        "import/export": 2,
+        "react/jsx-uses-vars": "error",
+        "react/no-unused-prop-types": 1,
+        "no-underscore-dangle": "off",
+        "react/jsx-props-no-spreading": "off",
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "warn",
+        "import/prefer-default-export": "off",
+        "react/prop-types": "off",
+        "no-use-before-define": [0],
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-use-before-define": [1],
+        "prettier/prettier": [
+            "error",
+            {
+                "singleQuote": true,
+                "parser": "typescript"
+            }
+        ],
+        "react/jsx-filename-extension": [
+            1,
+            { "extensions": [".js", ".jsx", ".ts", ".tsx"] }
+        ]
+    },
+    "settings": {
+        "import/extensions": [
+            ".js",
+            ".jsx",
+            ".ts",
+            ".tsx"
+        ],
+        "react": {
+            "version": "detect"
+        },
+        "import/resolver": {
+            "node": {
+                "extensions": [".js", ".jsx", ".ts", ".tsx"],
+                "paths": ["src"]
+            }
+        }
+    }
+}

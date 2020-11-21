@@ -1,0 +1,21 @@
+.yourMessage {
+  margin: 10px 10px 10px auto;
+}
+
+.hisMessage {
+  margin: 10px auto 10px 10px;
+}
+
+.message {
+  display: flex;
+  background: #ffffff;
+  padding: 10px;
+  border-radius: 5px;
+  time {
+    margin-top: auto;
+    color: #716c6c;
+    margin-left: 15px;
+    text-align: right;
+    font-size: 12px;
+  }
+}
