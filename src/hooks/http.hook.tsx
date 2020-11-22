@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-interface IHttpHook {
+export interface IHttpHook {
   request: (...params) => any;
   error: string;
   loading: boolean;

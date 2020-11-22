@@ -1,17 +1,9 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
+import { RootState } from 'store';
 import ChatContainer from './components/ChatContainer';
 import EmptyContainer from './components/EmptyContainer';
 import s from './MainBlock.module.scss';
-
-interface RootState {
-  main: {
-    Me: {};
-    Users: [];
-    Dialogs: [];
-    selectedUser: string;
-  };
-}
 
 export interface IMainBlockProps {
   className?: string;

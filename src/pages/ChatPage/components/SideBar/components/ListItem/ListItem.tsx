@@ -9,7 +9,7 @@ interface Props {
   className?: string;
   isBlack: boolean;
   name?: string;
-  message: string | JSX.Element;
+  message: JSX.Element;
   onClick: () => void;
   time: string;
 }

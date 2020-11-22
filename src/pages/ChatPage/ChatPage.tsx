@@ -15,12 +15,12 @@ const ChatPage = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
-    setTheme(selected);
-  }, [selected]);
-
-  useEffect(() => {
     dispatch(getTheme());
   }, [dispatch]);
+
+  useEffect(() => {
+    setTheme(selected);
+  }, [selected]);
 
   return (
     <div className={s.page}>

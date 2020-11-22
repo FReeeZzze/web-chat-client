@@ -7,10 +7,11 @@ export const types = {
 };
 
 export interface IMessage {
+  _id: string;
   from: string;
   message: string;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface IUser {
@@ -21,8 +22,8 @@ export interface IUser {
   name?: string;
   password?: string;
   last_seen?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  created_at?: string;
+  updated_at?: string;
   username?: string;
 }
 
@@ -30,8 +31,8 @@ export interface IDialog {
   _id: string;
   users: IUser[];
   messages: IMessage[];
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface IMainState {

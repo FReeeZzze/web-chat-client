@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { NavLink } from 'react-router-dom';
-
+import { hour } from 'constants/time';
 import {
   TextField,
   FormControlLabel,
@@ -69,8 +69,8 @@ const AuthForm = ({ className = '' }: Props): JSX.Element => {
   };
 
   useInterval(() => {
-    loginHandler().then(() => console.log('Re LOGIN после 1ч токена'));
-  }, 3600000);
+    loginHandler().then(() => console.log('Token updated'));
+  }, hour);
 
   return (
     <div className={`${className}`}>

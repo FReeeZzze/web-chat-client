@@ -10,13 +10,16 @@ const appReducer = combineReducers({
 
 interface Action {
   type: string;
-  payload: string;
+  payload: any;
 }
 
-const rootReducer = (state, action: Action) => {
+const rootReducer = (
+  state: ReturnType<typeof rootReducer>,
+  action: Action
+): ReturnType<typeof rootReducer> => {
   if (action.type === 'LOG_OUT') {
-    // eslint-disable-next-line
-    state = null;
+    // eslint-disable-next-line no-param-reassign
+    state = undefined;
   }
 
   return appReducer(state, action);

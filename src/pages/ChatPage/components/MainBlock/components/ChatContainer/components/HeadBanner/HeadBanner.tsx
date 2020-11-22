@@ -74,13 +74,16 @@ const HeadBanner = ({ className = '' }: HeadBannerProps): JSX.Element => {
   useEffect(() => {
     if (Dialogs.length > 0) {
       for (const key of Dialogs) {
-        if (getOpponent(key, auth.userId)[0]._id === selectedUser)
-          setName(getOpponent(key, auth.userId)[0].name || '');
+        if (getOpponent(key.users, auth.userId)._id === selectedUser)
+          setName(getOpponent(key.users, auth.userId).name || '');
       }
     }
   }, [auth.userId, Dialogs, selectedUser]);
 
-  const handleLogout = () => auth.logout();
+  const handleLogout = () => {
+    auth.logout();
+    dispatch({ type: 'LOG_OUT' });
+  };
 
   const handleOnChange = (e) => {
     dispatch(actions.setTheme(e.target.value));

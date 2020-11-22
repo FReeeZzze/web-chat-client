@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
-// import { useSelector } from 'react-redux';
+import React, { useState, useEffect, useContext } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from 'store';
+import getOpponent from 'utils/chat.utils';
+import { AuthContext } from 'context/AuthContext';
+import { IDialog } from 'store/reducers/mainReducer/types';
 import MessageItem from './components/MessageItem';
 import s from './MessageBox.module.scss';
 
@@ -7,45 +11,25 @@ interface Props {
   className?: string;
 }
 
-// interface RootState {
-//   main: {
-//     selectedUser: string;
-//     Dialogs: [
-//       {
-//         messages: [];
-//         users: [
-//           {
-//             _id: string;
-//           }
-//         ];
-//       }
-//     ];
-//   };
-// }
 const MessageBox = ({ className }: Props): JSX.Element => {
-  // const { selectedUser, Dialogs } = useSelector(
-  //   (state: RootState) => state.main
-  // );
-  const [chat, setChat] = useState({
-    users: [
-      {
-        _id: '',
-      },
-    ],
-    messages: [
-      {
-        from: '',
-        _id: '',
-        message: '',
-        created_at: '',
-      },
-    ],
-  });
+  const { selectedUser, Dialogs } = useSelector(
+    (state: RootState) => state.main
+  );
+  const dialog: IDialog = {
+    _id: '',
+    messages: [],
+    users: [],
+    created_at: '',
+    updated_at: '',
+  };
+  const auth = useContext(AuthContext);
+  const [chat, setChat] = useState(dialog);
 
-  // useEffect(() => {
-  //   for (const key of Dialogs)
-  //     if (key.users[1]._id === selectedUser) setChat(key);
-  // }, [Dialogs, selectedUser]);
+  useEffect(() => {
+    for (const key of Dialogs)
+      if (getOpponent(key.users, auth.userId)._id === selectedUser)
+        setChat(key);
+  }, [auth.userId, Dialogs, selectedUser]);
 
   return (
     <div className={`${s.messageBox} ${className}`}>
@@ -55,7 +39,9 @@ const MessageBox = ({ className }: Props): JSX.Element => {
             key={item._id}
             message={item.message}
             date={item.created_at}
-            isRightPosition={chat.users[1]._id !== item.from}
+            isRightPosition={
+              getOpponent(chat.users, auth.userId)._id !== item.from
+            }
           />
         ))}
     </div>

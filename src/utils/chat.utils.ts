@@ -1,10 +1,10 @@
-import { IDialog, IUser } from 'store/reducers/mainReducer/types';
+import { IUser } from 'store/reducers/mainReducer/types';
 
-const getOpponent = (item: IDialog, me?: string): IUser[] => {
-  return item.users.filter((user) => {
+const getOpponent = (users: IUser[], me?: string): IUser => {
+  return users.filter((user) => {
     if (user._id !== me) return user;
     return !user;
-  });
+  })[0];
 };
 
 export default getOpponent;

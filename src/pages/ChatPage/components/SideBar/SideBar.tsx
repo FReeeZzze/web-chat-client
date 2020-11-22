@@ -1,10 +1,10 @@
 import React, { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { actions } from 'store/reducers/mainReducer/mainReducer';
-import dateTimeParseToTime from 'utils/dateFormat';
-import { makeStyles, createStyles } from '@material-ui/core/styles';
-import fetchDialog from 'store/thunks/dialogThunk';
 import { AuthContext } from 'context/AuthContext';
+import { RootState } from 'store';
+import { actions } from 'store/reducers/mainReducer/mainReducer';
+import fetchDialog from 'store/thunks/dialogThunk';
+import fetchUsers from 'store/thunks/usersThunk';
 import useHttp from 'hooks/http.hook';
 import getOpponent from 'utils/chat.utils';
 import {
@@ -13,24 +13,13 @@ import {
   setThemeSearchBG,
   setThemeActiveColor,
 } from 'utils/theme.utils';
-import { RootState } from 'store';
-import { IUser } from 'store/reducers/mainReducer/types';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
+import useInterval from 'hooks/interval.hook';
+import { hour } from 'constants/time';
 import ListItem from './components/ListItem';
+import LastMessage from './components/LastMessage';
+import { getDate } from './utils';
 import s from './SideBar.module.scss';
-
-const getLastMessage = (
-  user: IUser,
-  lastMessage: { from: string; message: string }
-): string | JSX.Element => {
-  return lastMessage.from === user._id ? (
-    lastMessage.message.split('').splice(0, 65).join('')
-  ) : (
-    <>
-      <div className={s.linkedYou}>Вы: </div>
-      {lastMessage.message.split('').splice(0, 65).join('')}
-    </>
-  );
-};
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -67,7 +56,7 @@ interface Props {
 }
 
 const SideBar = ({ className }: Props): JSX.Element => {
-  const { Dialogs, selectedUser } = useSelector(
+  const { Dialogs, Users, selectedUser } = useSelector(
     (state: RootState) => state.main
   );
   const { selected } = useSelector((state: RootState) => state.theme);
@@ -82,33 +71,28 @@ const SideBar = ({ className }: Props): JSX.Element => {
 
   useEffect(() => {
     dispatch(fetchDialog(request, auth.token));
-  }, []);
+    dispatch(fetchUsers(request, auth.token));
+  }, [auth.token, dispatch, request]);
 
-  const getMessage = (item) => {
-    return item.messages.length > 0
-      ? getLastMessage(
-          getOpponent(item.users, auth.userId)[0],
-          item.messages[item.messages.length - 1]
-        )
-      : '';
-  };
+  useInterval(() => {
+    // обновить список пользователей через час
+    dispatch(fetchUsers(request, auth.token));
+  }, hour);
 
-  const getDate = (item) => {
-    return dateTimeParseToTime(
-      item.messages.length > 0
-        ? item.messages[item.messages.length - 1].created_at
-        : 0
-    );
-  };
+  const handleOnChange = (e) => setSearch(e.target.value);
+
+  const FilteredUsers = Users.filter(
+    (user) =>
+      user.username.toLowerCase() === search.toLowerCase() ||
+      user.name.toLowerCase() === search.toLowerCase()
+  );
 
   return (
     <aside className={`${s.side} ${styles.sideTheme} ${className}`}>
       <input
         type="search"
         value={search}
-        onChange={(e) => {
-          setSearch(e.target.value);
-        }}
+        onChange={handleOnChange}
         className={`${s.search} ${styles.searchTheme}`}
         placeholder="Поиск"
       />
@@ -116,11 +100,11 @@ const SideBar = ({ className }: Props): JSX.Element => {
         {Dialogs.map((item, index) => (
           <ListItem
             key={`${auth.userId} - ${index}`}
-            name={getOpponent(item, auth.userId)[0].name}
-            message={getMessage(item)}
+            name={getOpponent(item.users, auth.userId).name}
+            message={<LastMessage item={item} />}
             time={getDate(item)}
             className={
-              getOpponent(item, auth.userId)[0]._id === selectedUser
+              getOpponent(item.users, auth.userId)._id === selectedUser
                 ? styles.active
                 : styles.default
             }
@@ -128,7 +112,7 @@ const SideBar = ({ className }: Props): JSX.Element => {
             onClick={() =>
               dispatch(
                 actions.setSelectedUser(
-                  getOpponent(item, auth.userId)[0]._id || ''
+                  getOpponent(item.users, auth.userId)._id || auth.userId
                 )
               )
             }

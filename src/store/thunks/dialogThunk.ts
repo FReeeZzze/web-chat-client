@@ -1,15 +1,20 @@
 import { actions } from 'store/reducers/mainReducer/mainReducer';
+import { ThunkAction } from 'redux-thunk';
+import { MainActionTypes, IDialog } from 'store/reducers/mainReducer/types';
+import { RootState } from 'store';
 
-interface ResponseData {
-  dialogs: [];
-}
-
-const fetchDialog = (request: any, token: string) => async (dispatch: any) => {
+const fetchDialog = (
+  request: (...params) => any,
+  token: string
+): ThunkAction<void, RootState, unknown, MainActionTypes> => async (
+  dispatch
+) => {
   try {
-    const data: ResponseData = await request('/api/dialog', 'GET', null, {
+    const data = await request('/api/dialog', 'GET', null, {
       Authorization: `Bearer ${token}`,
     });
-    dispatch(actions.setDialogs(data.dialogs));
+    const dialogs: IDialog[] = data.dialogs;
+    dispatch(actions.setDialogs(dialogs));
   } catch (e) {
     console.log(e.message);
   }
