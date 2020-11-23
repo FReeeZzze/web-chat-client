@@ -5,6 +5,7 @@ const init: IMainState = {
   Users: [],
   Dialogs: [],
   selectedUser: '',
+  searchUser: '',
 };
 
 export default function mainReducer(
@@ -21,6 +22,8 @@ export default function mainReducer(
       return { ...state, me: payload as IUser };
     case types.SET_USERS:
       return { ...state, Users: payload as IUser[] };
+    case types.SET_SEARCH_USER:
+      return { ...state, searchUser: payload as string };
     default:
       return state;
   }
@@ -28,6 +31,10 @@ export default function mainReducer(
 
 export const actions = {
   setMe: (me: IUser): MainActionTypes => ({ type: types.SET_ME, payload: me }),
+  setSearchUser: (user: string): MainActionTypes => ({
+    type: types.SET_SEARCH_USER,
+    payload: user,
+  }),
   setUsers: (users: IUser[]): MainActionTypes => ({
     type: types.SET_USERS,
     payload: users,

@@ -24,10 +24,10 @@ const GetLastMessage = (
 
 const LastMessage = ({ item }: Props): JSX.Element => {
   const auth = useContext(AuthContext);
-  return item.messages.length > 0 ? (
+  return item.messages?.length > 0 ? (
     GetLastMessage(
       getOpponent(item.users, auth.userId),
-      item.messages[item.messages.length - 1]
+      item.messages[item.messages?.length - 1]
     )
   ) : (
     <> </>

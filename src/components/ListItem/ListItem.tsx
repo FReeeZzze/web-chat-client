@@ -3,11 +3,12 @@ import { makeStyles } from '@material-ui/core/styles';
 import Avatar from '@material-ui/core/Avatar';
 import { indigo } from '@material-ui/core/colors';
 import { setThemeTitleColor, setThemeColor } from 'utils/theme.utils';
+import { useSelector } from 'react-redux';
+import { RootState } from 'store';
 import s from './ListItem.module.scss';
 
 interface Props {
   className?: string;
-  isBlack: boolean;
   name?: string;
   message: JSX.Element;
   onClick: () => void;
@@ -40,12 +41,13 @@ const useStyles = makeStyles((theme) => ({
 
 const ListItem = ({
   className,
-  isBlack,
   name,
   message,
   onClick,
   time,
 }: Props): JSX.Element => {
+  const { selected } = useSelector((state: RootState) => state.theme);
+  const isBlack: boolean = selected === 'black';
   const classes = useStyles(isBlack);
 
   return (

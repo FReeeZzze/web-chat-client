@@ -4,6 +4,7 @@ export const types = {
   SET_NEW_MESSAGE: 'main/SET_NEW_MESSAGE',
   SET_USERS: 'main/SET_USERS',
   SET_ME: 'main/SET_ME',
+  SET_SEARCH_USER: 'main/SET_SEARCH_USER',
 };
 
 export interface IMessage {
@@ -40,6 +41,7 @@ export interface IMainState {
   Users: IUser[];
   Dialogs: IDialog[];
   selectedUser: string;
+  searchUser: string;
 }
 
 export interface SetDialogsAction {
@@ -62,8 +64,14 @@ export interface SetSelectedUser {
   payload: string;
 }
 
+export interface SetSearchAction {
+  type: typeof types.SET_SEARCH_USER;
+  payload: IDialog[];
+}
+
 export type MainActionTypes =
   | SetDialogsAction
   | SetUsersAction
   | SetMeAction
-  | SetSelectedUser;
+  | SetSelectedUser
+  | SetSearchAction;

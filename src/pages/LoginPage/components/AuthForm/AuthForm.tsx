@@ -69,6 +69,7 @@ const AuthForm = ({ className = '' }: Props): JSX.Element => {
   };
 
   useInterval(() => {
+    auth.logout();
     loginHandler().then(() => console.log('Token updated'));
   }, hour);
 

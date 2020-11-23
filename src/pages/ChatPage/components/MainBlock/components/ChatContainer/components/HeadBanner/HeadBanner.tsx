@@ -62,9 +62,7 @@ const HeadBanner = ({ className = '' }: HeadBannerProps): JSX.Element => {
   const auth = useContext(AuthContext);
   const dispatch = useDispatch();
 
-  const { Dialogs, selectedUser } = useSelector(
-    (state: RootState) => state.main
-  );
+  const { Users, selectedUser } = useSelector((state: RootState) => state.main);
   const { variant, selected } = useSelector((state: RootState) => state.theme);
 
   const isBlack: boolean = selected === 'black';
@@ -72,13 +70,12 @@ const HeadBanner = ({ className = '' }: HeadBannerProps): JSX.Element => {
   const styles = useStyles(isBlack);
 
   useEffect(() => {
-    if (Dialogs.length > 0) {
-      for (const key of Dialogs) {
-        if (getOpponent(key.users, auth.userId)._id === selectedUser)
-          setName(getOpponent(key.users, auth.userId).name || '');
+    if (Users.length > 0) {
+      for (const key of Users) {
+        if (key._id === selectedUser) setName(key.name);
       }
     }
-  }, [auth.userId, Dialogs, selectedUser]);
+  }, [auth.userId, Users, selectedUser]);
 
   const handleLogout = () => {
     auth.logout();

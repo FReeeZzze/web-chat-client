@@ -12,15 +12,15 @@ const fetchUsers = (
   dispatch
 ) => {
   try {
-    if (!getByLocalStorage(local.usersStorage)) {
-      const data = await request('/api/user/all', 'GET', null, {
-        Authorization: `Bearer ${token}`,
-      });
-      const users: IUser[] = data.result;
-      setByLocalStorage(local.usersStorage, users);
-      dispatch(actions.setUsers(users));
-    }
-    dispatch(actions.setUsers(getByLocalStorage(local.usersStorage)));
+    // if (!getByLocalStorage(local.usersStorage)) {
+    const data = await request('/api/user/all', 'GET', null, {
+      Authorization: `Bearer ${token}`,
+    });
+    const users: IUser[] = data.result;
+    setByLocalStorage(local.usersStorage, users);
+    dispatch(actions.setUsers(users));
+    // }
+    // dispatch(actions.setUsers(getByLocalStorage(local.usersStorage)));
   } catch (e) {
     console.log(e.message);
   }
