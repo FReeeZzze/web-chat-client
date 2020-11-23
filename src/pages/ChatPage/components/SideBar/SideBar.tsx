@@ -8,7 +8,7 @@ import { setThemeBackground, setThemeSearchBG } from 'utils/theme.utils';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import useInterval from 'hooks/interval.hook';
 import { hour } from 'constants/time';
-import { actions } from 'store/reducers/mainReducer/mainReducer';
+import { actions } from 'store/reducers/usersReducer';
 import FilteredList from './components/FilteredList';
 import s from './SideBar.module.scss';
 
@@ -29,7 +29,7 @@ interface Props {
 
 const SideBar = ({ className }: Props): JSX.Element => {
   const { selected } = useSelector((state: RootState) => state.theme);
-  const { searchUser } = useSelector((state: RootState) => state.main);
+  const { searchUser } = useSelector((state: RootState) => state.users);
   const dispatch = useDispatch();
   const { request } = useHttp();
   const auth = useContext(AuthContext);

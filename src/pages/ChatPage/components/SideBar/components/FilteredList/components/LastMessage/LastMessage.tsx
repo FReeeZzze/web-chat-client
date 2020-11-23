@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import getOpponent from 'utils/chat.utils';
-import { IDialog, IUser } from 'store/reducers/mainReducer/types';
+import { IDialog, IUser } from 'store/reducers/usersReducer/types';
 import { AuthContext } from 'context/AuthContext';
 import s from './LastMessage.module.scss';
 

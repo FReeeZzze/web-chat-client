@@ -9,10 +9,9 @@ import {
   Select,
   Button,
 } from '@material-ui/core';
-import { actions } from 'store/reducers/themeReducer/themeReducer';
+import { actions } from 'store/reducers/themeReducer';
 import { useDispatch, useSelector } from 'react-redux';
 import { AuthContext } from 'context/AuthContext';
-import getOpponent from 'utils/chat.utils';
 import {
   setThemeBackground,
   setThemeColor,
@@ -62,7 +61,7 @@ const HeadBanner = ({ className = '' }: HeadBannerProps): JSX.Element => {
   const auth = useContext(AuthContext);
   const dispatch = useDispatch();
 
-  const { Users, selectedUser } = useSelector((state: RootState) => state.main);
+  const { Users, selectedUser } = useSelector((state: RootState) => state.users);
   const { variant, selected } = useSelector((state: RootState) => state.theme);
 
   const isBlack: boolean = selected === 'black';
@@ -70,10 +69,8 @@ const HeadBanner = ({ className = '' }: HeadBannerProps): JSX.Element => {
   const styles = useStyles(isBlack);
 
   useEffect(() => {
-    if (Users.length > 0) {
-      for (const key of Users) {
-        if (key._id === selectedUser) setName(key.name);
-      }
+    for (const key of Users) {
+      if (key._id === selectedUser) setName(key.name);
     }
   }, [auth.userId, Users, selectedUser]);
 

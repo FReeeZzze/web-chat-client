@@ -1,4 +1,4 @@
-import { IUser } from 'store/reducers/mainReducer/types';
+import { IUser } from 'store/reducers/usersReducer/types';
 
 const getOpponent = (users: IUser[], me?: string): IUser => {
   return users.filter((user) => {

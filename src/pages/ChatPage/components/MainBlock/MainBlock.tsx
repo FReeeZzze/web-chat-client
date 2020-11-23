@@ -10,7 +10,7 @@ export interface IMainBlockProps {
 }
 
 const MainBlock = ({ className = '' }: IMainBlockProps): JSX.Element => {
-  const { selectedUser } = useSelector((state: RootState) => state.main);
+  const { selectedUser } = useSelector((state: RootState) => state.users);
   const userIsSelected: boolean = selectedUser.length > 0;
   return (
     <div className={`${s.container} ${className}`}>

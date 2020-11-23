@@ -1,11 +1,7 @@
-import { types, IMainState, MainActionTypes, IDialog, IUser } from './types';
+import { types, IMainState, MainActionTypes } from './types';
 
 const init: IMainState = {
-  me: {},
-  Users: [],
-  Dialogs: [],
-  selectedUser: '',
-  searchUser: '',
+  data: [],
 };
 
 export default function mainReducer(
@@ -14,37 +10,16 @@ export default function mainReducer(
 ): IMainState {
   const { type, payload } = action;
   switch (type) {
-    case types.SET_DIALOGS:
-      return { ...state, Dialogs: payload as IDialog[] };
-    case types.SET_SELECTED_USER:
-      return { ...state, selectedUser: payload as string };
-    case types.SET_ME:
-      return { ...state, me: payload as IUser };
-    case types.SET_USERS:
-      return { ...state, Users: payload as IUser[] };
-    case types.SET_SEARCH_USER:
-      return { ...state, searchUser: payload as string };
+    case types.FETCH_DATA:
+      return { ...state, data: payload as [] };
     default:
       return state;
   }
 }
 
 export const actions = {
-  setMe: (me: IUser): MainActionTypes => ({ type: types.SET_ME, payload: me }),
-  setSearchUser: (user: string): MainActionTypes => ({
-    type: types.SET_SEARCH_USER,
-    payload: user,
-  }),
-  setUsers: (users: IUser[]): MainActionTypes => ({
-    type: types.SET_USERS,
-    payload: users,
-  }),
-  setDialogs: (dialog: IDialog[]): MainActionTypes => ({
-    type: types.SET_DIALOGS,
-    payload: dialog,
-  }),
-  setSelectedUser: (user: string): MainActionTypes => ({
-    type: types.SET_SELECTED_USER,
-    payload: user,
+  setData: (data: []): MainActionTypes => ({
+    type: types.FETCH_DATA,
+    payload: data,
   }),
 };

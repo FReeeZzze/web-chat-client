@@ -1,14 +1,14 @@
 import { ThunkAction } from 'redux-thunk';
 import { RootState } from 'store';
-import { actions } from 'store/reducers/mainReducer/mainReducer';
-import { MainActionTypes, IUser } from 'store/reducers/mainReducer/types';
-import { getByLocalStorage, setByLocalStorage } from 'utils/localStorage.utils';
+import { actions } from 'store/reducers/usersReducer';
+import { UsersActionTypes, IUser } from 'store/reducers/usersReducer/types';
+// import { getByLocalStorage, setByLocalStorage } from 'utils/localStorage.utils';
 import local from 'constants/localStorage';
 
 const fetchUsers = (
   request: (...params) => any,
   token: string
-): ThunkAction<void, RootState, unknown, MainActionTypes> => async (
+): ThunkAction<void, RootState, unknown, UsersActionTypes> => async (
   dispatch
 ) => {
   try {
@@ -17,7 +17,7 @@ const fetchUsers = (
       Authorization: `Bearer ${token}`,
     });
     const users: IUser[] = data.result;
-    setByLocalStorage(local.usersStorage, users);
+    // setByLocalStorage(local.usersStorage, users);
     dispatch(actions.setUsers(users));
     // }
     // dispatch(actions.setUsers(getByLocalStorage(local.usersStorage)));

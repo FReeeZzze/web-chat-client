@@ -3,7 +3,7 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 import { setThemeActiveBG, setThemeActiveColor } from 'utils/theme.utils';
 import { useDispatch, useSelector } from 'react-redux';
 import ListItem from 'components/ListItem';
-import { actions } from 'store/reducers/mainReducer/mainReducer';
+import { actions } from 'store/reducers/usersReducer';
 import { RootState } from 'store';
 import { AuthContext } from 'context/AuthContext';
 import LastMessage from './components/LastMessage';
@@ -40,7 +40,7 @@ const useStyles = makeStyles(() =>
 
 const FilteredList = ({ isSearch, isBlack }: Props): JSX.Element => {
   const { Users, selectedUser, searchUser } = useSelector(
-    (state: RootState) => state.main
+    (state: RootState) => state.users
   );
   const auth = useContext(AuthContext);
   const dispatch = useDispatch();
