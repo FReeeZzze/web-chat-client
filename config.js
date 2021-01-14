@@ -11,5 +11,12 @@ System.config({
     'store*': './src/store*',
     'utils*': './src/utils*',
     'scss*': './src/scss*',
+    'core*': './src/core*',
+  },
+  packages: {
+    'socket.io-client': { defaultExtension: 'js' },
+  },
+  map: {
+    'socket.io-client': 'node_modules/socket.io-client/socket.io.js',
   },
 });
