@@ -1,21 +1,45 @@
 .yourMessage {
-  margin: 10px 10px 10px auto;
+  align-self: flex-end;
 }
 
 .hisMessage {
-  margin: 10px auto 10px 10px;
+  align-self: flex-start;
+}
+
+.yourAvatar {
+  background-color: #3addff!important;
+}
+
+.hisAvatar {
+  background-color: #305b91!important;
 }
 
 .message {
+  margin: 5px;
+  width: 100%;
+  max-width: 390px;
+  max-height: 350px;
   display: flex;
-  background: #ffffff;
-  padding: 10px;
-  border-radius: 5px;
-  time {
-    margin-top: auto;
-    color: #716c6c;
-    margin-left: 15px;
-    text-align: right;
-    font-size: 12px;
+  //word-wrap: break-word;
+  //word-break: keep-all;
+  //hyphens: none;
+  .innerMessage {
+    margin-left: 5px;
+    display: grid;
+    background: #ffffff;
+    padding: 10px;
+    border-radius: 5px;
+    grid-template: auto / 230px auto;
+    span {
+      word-wrap: break-word;
+      overflow: hidden;
+    }
+    time {
+      margin-top: auto;
+      color: #716c6c;
+      margin-left: 15px;
+      text-align: right;
+      font-size: 12px;
+    }
   }
 }

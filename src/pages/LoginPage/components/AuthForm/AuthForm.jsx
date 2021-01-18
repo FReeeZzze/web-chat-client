@@ -49,7 +49,8 @@ const AuthForm = ({ className }) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const loginHandler = async () => {
+  const loginHandler = async (e) => {
+    e.preventDefault();
     try {
       const { message, status, token, userId } = await request(
         '/api/auth/login',

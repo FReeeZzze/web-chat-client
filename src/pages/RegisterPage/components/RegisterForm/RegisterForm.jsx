@@ -44,7 +44,8 @@ const RegisterForm = ({ className }) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const registerHandler = async () => {
+  const registerHandler = async (e) => {
+    e.preventDefault();
     try {
       const { message, status, token, userId } = await request(
         '/api/auth/register',

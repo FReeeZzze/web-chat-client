@@ -1,6 +1,6 @@
 .messageBox {
-  //display: grid;
-  //grid-template: auto / auto auto;
+  height: calc(100vh - 117px);
   display: flex;
   flex-direction: column;
+  overflow-y: scroll;
 }

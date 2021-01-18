@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { any, bool } from 'prop-types';
 
 class AudioVisualiser extends Component {
   constructor(props) {
@@ -8,10 +9,12 @@ class AudioVisualiser extends Component {
   }
 
   componentDidMount() {
+    // eslint-disable-next-line react/destructuring-assignment
     if (this.props.isPlaying) {
       this.audioContext = new (window.AudioContext ||
         window.webkitAudioContext)();
       this.source = this.audioContext.createMediaElementSource(
+        // eslint-disable-next-line react/destructuring-assignment
         this.props.audio
       );
       this.analyser = this.audioContext.createAnalyser();
@@ -24,6 +27,12 @@ class AudioVisualiser extends Component {
     }
   }
 
+  componentWillUnmount() {
+    cancelAnimationFrame(this.rafId);
+    // this.analyser.disconnect();
+    // this.source.disconnect();
+  }
+
   tick() {
     const canvas = this.canvas.current;
     const height = canvas.height;
@@ -33,13 +42,13 @@ class AudioVisualiser extends Component {
 
     this.analyser.getByteFrequencyData(this.dataArray);
 
-    let barWidth = width / this.bufferLength;
+    const barWidth = width / this.bufferLength;
     let barHeight;
     let x = 0;
 
-    let heightScale = height / 128;
+    const heightScale = height / 128;
 
-    for (let i = 0; i < this.bufferLength; i++) {
+    for (let i = 0; i < this.bufferLength; i += 1) {
       barHeight = this.dataArray[i];
 
       context.fillStyle = '#86A5CE';
@@ -52,15 +61,14 @@ class AudioVisualiser extends Component {
     this.rafId = requestAnimationFrame(this.tick);
   }
 
-  componentWillUnmount() {
-    cancelAnimationFrame(this.rafId);
-    this.analyser.disconnect();
-    this.source.disconnect();
-  }
-
   render() {
-    return <canvas width="230" height="20" ref={this.canvas} />;
+    return <canvas width="210" height="20" ref={this.canvas} />;
   }
 }
+
+AudioVisualiser.propTypes = {
+  isPlaying: bool,
+  audio: any,
+};
 
 export default AudioVisualiser;

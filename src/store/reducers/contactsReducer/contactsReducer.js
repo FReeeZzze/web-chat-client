@@ -1,11 +1,11 @@
 export const types = {
   SET_SELECTED_CONTACT: 'contacts/SET_SELECTED_CONTACT',
-  SET_SEARCH_CONTACTS: 'contacts/SET_SEARCH_CONTACTS',
   SET_ME: 'contacts/SET_ME',
   SET_SEARCH_USER: 'contacts/SET_SEARCH_USER',
-  SET_MESSAGE: 'contacts/SET_MESSAGE',
   SET_MESSAGES: 'contacts/SET_MESSAGES',
-  CLEAR_SEARCH_CONTACTS: 'contacts/CLEAR_SEARCH_CONTACTS',
+  SET_MESSAGE: 'contacts/SET_MESSAGE',
+  SET_MESSAGES_CURRENT: 'contacts/SET_MESSAGES_CURRENT',
+  SET_MESSAGE_CURRENT: 'contacts/SET_MESSAGE_CURRENT',
   ADD_CONTACT: 'contacts/ADD_CONTACT',
   SET_CONTACTS: 'contacts/SET_CONTACTS',
   SET_CURRENT_DIALOG: 'contacts/SET_CURRENT_DIALOG',
@@ -13,11 +13,12 @@ export const types = {
 
 const init = {
   me: {},
-  searchContacts: [],
   contacts: [],
   currentDialog: {
     messages: [],
+    users: [],
   },
+  messages: [],
   selectedContact: {},
 };
 
@@ -35,16 +36,16 @@ export default function contactsReducer(state = init, action) {
       return { ...state, contacts: [...state.contacts, payload] };
     case types.SET_ME:
       return { ...state, me: payload };
-    case types.SET_SEARCH_CONTACTS:
-      return { ...state, searchContacts: payload };
-    case types.CLEAR_SEARCH_CONTACTS:
-      return { ...state, searchContacts: payload };
     case types.SET_MESSAGES:
+      return { ...state, messages: payload };
+    case types.SET_MESSAGE:
+      return { ...state, messages: [...state.messages, payload] };
+    case types.SET_MESSAGES_CURRENT:
       return {
         ...state,
         currentDialog: { ...state.currentDialog, messages: payload },
       };
-    case types.SET_MESSAGE:
+    case types.SET_MESSAGE_CURRENT:
       return {
         ...state,
         currentDialog: {
@@ -74,20 +75,20 @@ export const actions = {
     type: types.ADD_CONTACT,
     payload: contact,
   }),
-  clearSearchContacts: () => ({
-    type: types.CLEAR_SEARCH_CONTACTS,
-    payload: [],
-  }),
-  setSearchContacts: (users) => ({
-    type: types.SET_SEARCH_CONTACTS,
-    payload: users,
-  }),
   setSelectedContact: (user) => ({
     type: types.SET_SELECTED_CONTACT,
     payload: user,
   }),
+  setMessagesCurrent: (messages) => ({
+    type: types.SET_MESSAGES_CURRENT,
+    payload: messages,
+  }),
   setMessage: (message) => ({
     type: types.SET_MESSAGE,
+    payload: message,
+  }),
+  setMessageCurrent: (message) => ({
+    type: types.SET_MESSAGE_CURRENT,
     payload: message,
   }),
   setMessages: (messages) => ({

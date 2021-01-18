@@ -1,34 +1,42 @@
-import React, { useContext } from 'react';
-import { object } from 'prop-types';
-import getOpponent from 'utils/chat.utils';
+import React from 'react';
+import { string, array } from 'prop-types';
 import { AuthContext } from 'context/AuthContext';
 import s from './LastMessage.module.scss';
 
 const GetLastMessage = (user, lastMessage) => {
-  return lastMessage.from === user._id ? (
-    <>{lastMessage.message.split('').splice(0, 65).join('')}</>
+  return !lastMessage.from.includes(user) ? (
+    <>
+      {lastMessage.message
+        ? lastMessage.message.split('').splice(0, 58).join('')
+        : 'Голосовое сообщение'}
+    </>
   ) : (
     <>
       <div className={s.linkedYou}>Вы: </div>
-      {lastMessage.message.split('').splice(0, 65).join('')}
+      {lastMessage.message
+        ? lastMessage.message.split('').splice(0, 58).join('')
+        : 'Голосовое сообщение'}
     </>
   );
 };
 
-const LastMessage = ({ item }) => {
-  const auth = useContext(AuthContext);
-  return item.messages?.length > 0 ? (
-    GetLastMessage(
-      getOpponent(item.users, auth.userId),
-      item.messages[item.messages?.length - 1]
-    )
-  ) : (
-    <> </>
-  );
+const LastMessage = ({ lastMessage, messages }) => {
+  const auth = React.useContext(AuthContext);
+  const last = messages.find((item) => lastMessage.includes(item._id));
+  if (messages.length > 0 && last) {
+    return GetLastMessage(auth.userId, last);
+  }
+  return <></>;
+};
+
+LastMessage.defaultProps = {
+  messages: [],
+  lastMessage: '',
 };
 
 LastMessage.propTypes = {
-  item: object,
+  lastMessage: string,
+  messages: array,
 };
 
 export default LastMessage;

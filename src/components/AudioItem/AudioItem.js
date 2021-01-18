@@ -1,5 +1,5 @@
 import React from 'react';
-import { object } from 'prop-types';
+import { string, number, bool } from 'prop-types';
 import { makeStyles } from '@material-ui/core';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import PauseIcon from '@material-ui/icons/Pause';
@@ -7,7 +7,6 @@ import DoneIcon from '@material-ui/icons/Done';
 import DoneAllIcon from '@material-ui/icons/DoneAll';
 import { secondsToMs } from 'utils/dateFormat';
 import { numberWithDots } from 'utils/other';
-import useInterval from 'hooks/interval.hook';
 import AudioVisualiser from './AudioVisualiser';
 
 const useStyles = makeStyles(() => ({
@@ -17,7 +16,7 @@ const useStyles = makeStyles(() => ({
     maxWidth: 350,
     minHeight: 50,
     padding: 10,
-    margin: 5,
+    margin: '0 5px',
     backgroundColor: '#3D4A5D',
     borderRadius: '5px',
     color: '#819EA7',
@@ -31,6 +30,9 @@ const useStyles = makeStyles(() => ({
     borderRadius: '30px',
     display: 'flex',
     alignSelf: 'center',
+    '&:focus': {
+      outline: 'none',
+    },
     '& svg': {
       fill: '#FFF',
       margin: 'auto',
@@ -49,7 +51,7 @@ const useStyles = makeStyles(() => ({
     margin: '0 5px',
     gridRow: '1',
   },
-  data: {
+  date: {
     fontSize: 12,
     alignSelf: 'flex-end',
     marginLeft: 'auto',
@@ -61,17 +63,23 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const AudioItem = ({ item }) => {
+const AudioItem = ({ timeEnd, duration, date, size, url, delivered }) => {
   const styles = useStyles();
   const player = React.useRef({});
   const [isPlaying, setPlaying] = React.useState(false);
   const [timer, setTimer] = React.useState(0);
+  const interval = React.useRef({});
 
-  useInterval(() => {
-    if (isPlaying && !player.current.ended && item.max > timer) {
-      setTimer((prev) => prev + 1);
-    } else setPlaying(false);
-  }, 1000);
+  React.useEffect(() => {
+    interval.current = setInterval(() => {
+      if (isPlaying && !player.current.ended && duration > timer) {
+        setTimer((prev) => prev + 1);
+      } else setPlaying(false);
+    }, 1000);
+    return () => {
+      clearInterval(interval.current);
+    };
+  }, [timer, duration, isPlaying, player]);
 
   const handlePlayAudio = () => {
     if (isPlaying) {
@@ -100,8 +108,8 @@ const AudioItem = ({ item }) => {
       </div>
       <div className={styles.inner}>
         <div className={styles.timer}>
-          {' '}
-          {secondsToMs(timer)} / {item.timeEnd}, {numberWithDots(item.size)} КБ
+          {timeEnd &&
+            `${secondsToMs(timer)} / ${timeEnd}, ${numberWithDots(size)} КБ`}
         </div>
         <div className={styles.visualizer}>
           {Object.keys(player.current).length > 0 && (
@@ -112,16 +120,11 @@ const AudioItem = ({ item }) => {
           )}
         </div>
       </div>
-      <div className={styles.data}>{item.data}</div>
+      <div className={styles.date}>{date}</div>
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-      <audio
-        id="RadioPlayerAudioTeg"
-        preload="none"
-        ref={player}
-        src={item.url}
-      />
+      <audio id="RadioPlayerAudioTeg" preload="none" ref={player} src={url} />
       <div className={styles.delivered}>
-        {item.delivered ? (
+        {delivered ? (
           <DoneAllIcon fontSize="small" />
         ) : (
           <DoneIcon fontSize="small" />
@@ -132,11 +135,21 @@ const AudioItem = ({ item }) => {
 };
 
 AudioItem.defaultProps = {
-  item: {},
+  duration: 0,
+  timeEnd: '',
+  size: 0,
+  date: '',
+  url: '',
+  delivered: false,
 };
 
 AudioItem.propTypes = {
-  item: object,
+  duration: number,
+  timeEnd: string,
+  size: number,
+  date: string,
+  url: string,
+  delivered: bool,
 };
 
 export default AudioItem;

@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { string } from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Button, InputBase, makeStyles } from '@material-ui/core';
 import MicIcon from '@material-ui/icons/Mic';
 import SendIcon from '@material-ui/icons/Send';
@@ -9,20 +9,20 @@ import {
   setThemePlaceHolder,
   setChatInput,
 } from 'utils/theme.utils';
-import { mToMs, msToSeconds, msToTime } from 'utils/dateFormat';
 import { ReactMic } from 'react-mic';
 import {
   fetchCreateMessage,
   fetchUploadFile,
 } from 'store/thunks/contactsThunk';
 import useHttp from 'hooks/http.hook';
+import { msToTime, mToMs, msToSeconds } from 'utils/dateFormat';
 import { AuthContext } from 'context/AuthContext';
 
 const useStyles = makeStyles((theme) => ({
   sendBox: (props) => ({
     width: '100%',
     display: 'grid',
-    gridTemplate: 'auto / 5fr 2fr 2fr 1fr',
+    gridTemplate: 'auto auto / 8fr 2fr 1fr',
     borderTop: '1px solid black',
     height: '50px',
     marginTop: 'auto',
@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
     },
   }),
   button: () => ({
-    margin: 'auto',
+    margin: 'auto 5px auto 10px',
     color: 'black',
     background: 'gray',
     '&:hover': {
@@ -50,8 +50,11 @@ const useStyles = makeStyles((theme) => ({
   microphone: () => ({
     margin: 'auto',
   }),
-  soundWave: () => ({
-    maxHeight: '49px',
+  soundWave: (props) => ({
+    visibility: props.record ? 'visible' : 'hidden',
+    position: 'absolute',
+    bottom: 50,
+    height: '49px',
     margin: 'auto',
     width: '100%',
   }),
@@ -63,13 +66,13 @@ const useStyles = makeStyles((theme) => ({
 const SendPanel = ({ className }) => {
   const [message, setMessage] = React.useState('');
   const [record, setRecord] = React.useState(false);
+  const [uploadData, setUploadData] = React.useState({});
   const { selected } = useSelector((state) => state.theme);
   const { currentDialog } = useSelector((state) => state.contacts);
   const isBlack = selected === 'black';
   const classes = useStyles({ isBlack, record });
   const { request } = useHttp();
   const auth = useContext(AuthContext);
-  const dispatch = useDispatch();
 
   const handleSendMessage = () => {
     const partner = currentDialog.users.filter(
@@ -94,28 +97,51 @@ const SendPanel = ({ className }) => {
     console.log('Вызов с интервалом в 10ms');
   };
 
+  React.useEffect(() => {
+    if (Object.keys(uploadData).length > 0) {
+      const partner = currentDialog.users.filter(
+        (user) => !user.includes(auth.userId)
+      );
+      const { fileData, data } = uploadData;
+      fetchUploadFile(auth.token, fileData, data).then((r) => {
+        fetchCreateMessage(
+          request,
+          auth.token,
+          currentDialog._id,
+          null,
+          r.file,
+          partner[0]
+        ).then(() => setUploadData({}));
+      });
+    }
+  }, [request, auth, uploadData, currentDialog]);
+
   const onStop = (recordedBlob) => {
     const fileData = new FormData();
+    const ext = recordedBlob.blob.type.split(';')[0].split('/').pop();
     fileData.append(
       'fileData',
       recordedBlob.blob,
-      `${recordedBlob.blob.size}.wave`
+      `${recordedBlob.blob.size}.${ext}`
     );
-    const GMT_2 = 7200000;
     const data = {
-      id: recordedBlob.blob.size,
       timeEnd: mToMs(recordedBlob.stopTime - recordedBlob.startTime),
-      data: msToTime(recordedBlob.stopTime + GMT_2),
-      max: msToSeconds(recordedBlob.stopTime - recordedBlob.startTime),
-      size: recordedBlob.blob.size,
-      delivered: false,
+      date: msToTime(recordedBlob.stopTime + 7200000),
+      duration: msToSeconds(recordedBlob.stopTime - recordedBlob.startTime),
     };
-    dispatch(fetchUploadFile(auth.token, fileData, data));
-    console.log('recordedBlob: ', recordedBlob);
+    setUploadData((prev) => ({ ...prev, data, fileData }));
   };
 
   return (
     <div className={`${classes.sendBox} ${className}`}>
+      <ReactMic
+        record={record}
+        className={classes.soundWave}
+        onStop={onStop}
+        onData={onData}
+        strokeColor={setChatInput(isBlack)}
+        backgroundColor={setPanelBG(isBlack)}
+      />
       <InputBase
         className={classes.chat}
         placeholder="Написать сообщение..."
@@ -131,15 +157,6 @@ const SendPanel = ({ className }) => {
       >
         Отправить
       </Button>
-      <ReactMic
-        record={record}
-        className={classes.soundWave}
-        onStop={onStop}
-        onData={onData}
-        mimeType="audio/wav"
-        strokeColor={setChatInput(isBlack)}
-        backgroundColor={setPanelBG(isBlack)}
-      />
       <Button
         variant="contained"
         color="primary"

@@ -1,22 +1,21 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { string } from 'prop-types';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   FormControl,
   InputLabel,
   makeStyles,
   MenuItem,
   Select,
-  Button,
 } from '@material-ui/core';
 import { actions } from 'store/reducers/themeReducer';
-import { useDispatch, useSelector } from 'react-redux';
-import { AuthContext } from 'context/AuthContext';
 import {
   setThemeBackground,
   setThemeColor,
   setThemeTitleColor,
 } from 'utils/theme.utils';
+import dateTimeParseToTime from 'utils/dateFormat';
+import ExitButton from 'components/ExitButton';
 import s from './HeadBanner.module.scss';
 
 const useStyles = makeStyles((theme) => ({
@@ -33,24 +32,26 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       color: setThemeTitleColor(isBlack),
     },
+    '& svg': {
+      color: setThemeColor(isBlack),
+    },
   }),
   userInfo: (isBlack) => ({
+    display: 'grid',
     color: setThemeTitleColor(isBlack),
-    fontSize: '16px',
-    fontWeight: 500,
     margin: '10px',
+    '& span': {
+      fontSize: '16px',
+      fontWeight: 500,
+    },
+    '& time': {
+      fontSize: '14px',
+    },
   }),
-  logout: {
-    padding: '10px',
-  },
-  exitIcon: {
-    fill: '#2d7fdf',
-  },
 }));
 
 const HeadBanner = ({ className }) => {
   const [open, setOpen] = useState(false);
-  const auth = useContext(AuthContext);
   const dispatch = useDispatch();
 
   const { selectedContact } = useSelector((state) => state.contacts);
@@ -60,18 +61,18 @@ const HeadBanner = ({ className }) => {
 
   const styles = useStyles(isBlack);
 
-  const handleLogout = () => {
-    auth.logout();
-    dispatch({ type: 'LOG_OUT' });
-  };
-
   const handleOnChange = (e) => {
     dispatch(actions.setTheme(e.target.value));
   };
 
   return (
     <div className={`${s.banner} ${styles.bannerTheme}${className}`}>
-      <div className={styles.userInfo}>{selectedContact.name}</div>
+      <div className={styles.userInfo}>
+        <span>{selectedContact.name}</span>
+        <time dateTime={selectedContact.last_seen}>
+          Последний визит: {dateTimeParseToTime(selectedContact.last_seen)}
+        </time>
+      </div>
       <FormControl className={styles.formControl}>
         <InputLabel id="label-theme" className={styles.menuItem}>
           Тема
@@ -93,9 +94,7 @@ const HeadBanner = ({ className }) => {
           ))}
         </Select>
       </FormControl>
-      <Button className={styles.logout} onClick={handleLogout}>
-        <ExitToAppIcon className={styles.exitIcon} />
-      </Button>
+      <ExitButton />
     </div>
   );
 };

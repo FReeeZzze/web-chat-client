@@ -6,19 +6,19 @@ import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { setThemeBackground, setThemeSearchBG } from 'utils/theme.utils';
 import {
-  findContacts,
   fetchMe,
-  getMyContacts,
-  clearSearchContacts,
   fetchCreateDialog,
-  addContact,
+  fetchMessagesByUserId,
+  findContacts,
+  addContactById,
+  getMyContacts,
   newMessage,
-  addCurrentDialog,
-  fetchMessages,
+  newMessageCurrent,
 } from 'store/thunks/contactsThunk';
 import { AuthContext } from 'context/AuthContext';
 import useHttp from 'hooks/http.hook';
 import socket from 'core/socket';
+import ExitButton from 'components/ExitButton';
 import ContactsList from './components/ContactsList';
 import s from './SideBar.module.scss';
 
@@ -26,6 +26,11 @@ const useStyles = makeStyles(() => ({
   sideTheme: (isBlack) => ({
     background: setThemeBackground(isBlack),
   }),
+  headSide: {
+    display: 'grid',
+    gridGap: 5,
+    gridTemplate: 'auto / 60px auto',
+  },
   searchTheme: (isBlack) => ({
     background: setThemeSearchBG(isBlack),
   }),
@@ -33,9 +38,10 @@ const useStyles = makeStyles(() => ({
 
 const SideBar = ({ className }) => {
   const [searchUser, setSearchUser] = React.useState('');
+  const [searchContacts, setSearchContacts] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const { selected } = useSelector((state) => state.theme);
-  const { searchContacts, selectedContact, contacts } = useSelector(
+  const { selectedContact, contacts, messages, currentDialog } = useSelector(
     (state) => state.contacts
   );
   const { request } = useHttp();
@@ -46,17 +52,40 @@ const SideBar = ({ className }) => {
   const styles = useStyles(isBlack);
 
   React.useEffect(() => {
-    dispatch(getMyContacts(request, auth.token));
     dispatch(fetchMe(request, auth.token));
+    dispatch(fetchMessagesByUserId(request, auth.token, auth.userId));
+  }, [dispatch, request, auth]);
 
-    const addNewMessage = (message) => {
-      dispatch(newMessage(message));
-    };
+  React.useEffect(() => {
+    dispatch(getMyContacts(request, auth.token));
+  }, [dispatch, request, auth, messages]);
 
+  const inMyContacts = (contacts, contact) => {
+    if (contacts.length === 0) return false;
+    return contacts.find((item) => item === contact);
+  };
+
+  React.useEffect(() => {
     const addDialog = (dialog) => {
       socket.emit('DIALOGS:JOIN', dialog._id);
-      dispatch(fetchMessages(request, auth.token, dialog._id));
-      dispatch(addCurrentDialog(dialog));
+      if (dialog.users.includes(auth.userId)) {
+        const partner = dialog.users.filter((item) => item !== auth.userId)[0];
+        if (!inMyContacts(contacts, partner)) {
+          addContactById(request, auth.token, partner).then(() => {
+            dispatch(getMyContacts(request, auth.token));
+          });
+        }
+      }
+    };
+
+    const addNewMessage = (message) => {
+      if (message.dialog._id === currentDialog._id) {
+        dispatch(newMessageCurrent(message));
+        dispatch(newMessage(message));
+      }
+      if (message.to === auth.userId) {
+        dispatch(newMessage(message));
+      }
     };
 
     socket.on('SERVER:DIALOG_CREATED', addDialog);
@@ -67,16 +96,18 @@ const SideBar = ({ className }) => {
       socket.off('SERVER:CURRENT_DIALOG', addDialog);
       socket.off('SERVER:NEW_MESSAGE', addNewMessage);
     };
-  }, [dispatch, request, auth]);
+  }, [contacts, currentDialog, dispatch, request, auth]);
 
   const onSearch = () => {
     setLoading(true);
-    dispatch(findContacts(request, auth.token, searchUser));
-    setLoading(false);
+    findContacts(request, auth.token, searchUser).then((contacts) => {
+      setSearchContacts(contacts);
+      setLoading(false);
+    });
   };
 
   const handleClose = () => {
-    dispatch(clearSearchContacts());
+    setSearchContacts([]);
   };
 
   const handleChange = (e) => {
@@ -93,9 +124,11 @@ const SideBar = ({ className }) => {
         .find((user) =>
           user.name.toLowerCase().includes(searchUser.toLowerCase())
         );
-      if (contact) {
-        dispatch(addContact(request, auth.token, contact));
-        fetchCreateDialog(request, auth.token, contact);
+      if (contact && !inMyContacts(contacts, contact)) {
+        fetchCreateDialog(request, auth.token, contact).then(() => {});
+        addContactById(request, auth.token, contact._id).then(() => {
+          dispatch(getMyContacts(request, auth.token));
+        });
       }
     }
   };
@@ -107,30 +140,34 @@ const SideBar = ({ className }) => {
 
   return (
     <aside className={`${s.side} ${styles.sideTheme} ${className}`}>
-      <Autocomplete
-        id="search-users"
-        freeSolo
-        onClose={handleClose}
-        onChange={handleChange}
-        options={searchContacts.map((option) => option.name)}
-        loading={loading}
-        className={s.auto}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            onChange={handleOnChange}
-            className={`${s.search} ${styles.searchTheme}`}
-            margin="normal"
-            placeholder="Поиск"
-          />
-        )}
-      />
+      <div className={styles.headSide}>
+        <ExitButton />
+        <Autocomplete
+          id="search-users"
+          freeSolo
+          onClose={handleClose}
+          onChange={handleChange}
+          options={searchContacts.map((option) => option.name)}
+          loading={loading}
+          className={s.auto}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              onChange={handleOnChange}
+              className={`${s.search} ${styles.searchTheme}`}
+              margin="normal"
+              placeholder="Поиск"
+            />
+          )}
+        />
+      </div>
       <ContactsList
+        isBlack={isBlack}
         request={request}
         token={auth.token}
-        isBlack={isBlack}
         contacts={contacts}
         selectedContact={selectedContact}
+        messages={messages}
       />
     </aside>
   );

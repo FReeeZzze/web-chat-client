@@ -6,10 +6,10 @@ const CopyRight = () => {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
       {'Copyright © '}
-      <Link color="inherit" href="/">
-        Web-chat Maxim Bezrukov
+      <Link color="inherit" href="https://github.com/FReeeZzze">
+        Web-messenger Maxim Bezrukov
       </Link>
-      {new Date().getFullYear()}
+      {`\t${new Date().getFullYear()}`}
     </Typography>
   );
 };

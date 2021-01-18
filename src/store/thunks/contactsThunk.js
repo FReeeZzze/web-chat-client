@@ -1,14 +1,25 @@
 import { actions } from 'store/reducers/contactsReducer';
 
-export const findContacts = (request, token, search) => async (dispatch) => {
+export const findContactById = async (request, token, userId) => {
+  try {
+    const data = await request(`/api/user/id?id=${userId}`, 'GET', null, {
+      Authorization: `Bearer ${token}`,
+    });
+    return data.result;
+  } catch (e) {
+    console.log(e.message);
+    return Promise.reject(e.message);
+  }
+};
+
+export const findContacts = async (request, token, search) => {
   try {
     const data = await request(`/api/user?search=${search}`, 'GET', null, {
       Authorization: `Bearer ${token}`,
     });
-    const users = data.result;
-    dispatch(actions.setSearchContacts(users));
+    return data.result;
   } catch (e) {
-    console.log(e.message);
+    return Promise.reject(e.message);
   }
 };
 
@@ -21,49 +32,62 @@ export const fetchMe = (request, token) => async (dispatch) => {
 
 export const getMyContacts = (request, token) => async (dispatch) => {
   try {
-    const data = await request('/api/user/contacts', 'GET', null, {
+    const data = await request('/api/user/me/contacts', 'GET', null, {
       Authorization: `Bearer ${token}`,
     });
-    const dialogs = data.result;
-    dispatch(actions.setContacts(dialogs));
+    console.log('my contacts: ', data);
+    const contacts = data.result;
+    dispatch(actions.setContacts(contacts));
   } catch (e) {
     console.log(e.message);
   }
 };
 
-export const clearSearchContacts = () => (dispatch) => {
-  dispatch(actions.clearSearchContacts());
+export const addContact = (contact) => (dispatch) => {
+  dispatch(actions.addContact(contact));
 };
 
-export const addContact = (request, token, contact) => async (dispatch) => {
+export const addContactById = async (request, token, contact) => {
   try {
     const data = await request(
       '/api/user/add',
       'PUT',
-      { id: contact._id },
+      { id: contact },
       {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       }
     );
-    console.log(data);
-    dispatch(actions.addContact(contact));
+    console.log('add CONTACT', data.result);
+    return data.result;
+  } catch (e) {
+    console.log(e.message);
+    return Promise.reject(e.message);
+  }
+};
+
+export const fetchMessagesByDialog = (request, token, id) => async (
+  dispatch
+) => {
+  try {
+    const data = await request(`/api/messages?dialog=${id}`, 'GET', null, {
+      Authorization: `Bearer ${token}`,
+    });
+    console.log('messages: ', data);
+    dispatch(actions.setMessagesCurrent(data.result));
   } catch (e) {
     console.log(e.message);
   }
 };
 
-export const fetchMessages = (request, token, id) => async (dispatch) => {
+export const fetchMessagesByUserId = (request, token, id) => async (
+  dispatch
+) => {
   try {
-    const data = await request(
-      '/api/messages',
-      'POST',
-      { dialog: id },
-      {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      }
-    );
+    const data = await request(`/api/messages?user=${id}`, 'GET', null, {
+      Authorization: `Bearer ${token}`,
+    });
+    console.log('messages by user id: ', data);
     dispatch(actions.setMessages(data.result));
   } catch (e) {
     console.log(e.message);
@@ -74,8 +98,16 @@ export const newMessage = (message) => (dispatch) => {
   dispatch(actions.setMessage(message));
 };
 
+export const newMessageCurrent = (message) => (dispatch) => {
+  dispatch(actions.setMessageCurrent(message));
+};
+
 export const addCurrentDialog = (dialog) => (dispatch) => {
   dispatch(actions.setCurrentDialog(dialog));
+};
+
+export const addCurrentContact = (contact) => (dispatch) => {
+  dispatch(actions.setSelectedContact(contact));
 };
 
 export const fetchCreateMessage = async (
@@ -96,13 +128,14 @@ export const fetchCreateMessage = async (
         'Content-Type': 'application/json',
       }
     );
-    console.log(data);
+    return data.result;
   } catch (e) {
-    console.log(e.message);
+    console.error(e.message);
+    return Promise.reject(e.message);
   }
 };
 
-export const fetchCreateDialog = (request, token, user) => async (dispatch) => {
+export const fetchCreateDialog = async (request, token, user) => {
   try {
     const data = await request(
       '/api/dialog',
@@ -113,26 +146,32 @@ export const fetchCreateDialog = (request, token, user) => async (dispatch) => {
         'Content-Type': 'application/json',
       }
     );
-    console.log(data);
-    dispatch(actions.setSelectedContact(user));
+    return data.result;
   } catch (e) {
-    console.log(e.message);
+    console.error(e.message);
+    return Promise.reject(e.message);
   }
 };
 
-export const fetchUploadFile = (token, file) => async (dispatch) => {
+export const fetchUploadFile = async (
+  token,
+  file,
+  { duration, date, timeEnd }
+) => {
   try {
-    const result = await fetch('/api/files', {
-      method: 'POST',
-      body: file,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    console.log(result);
-    dispatch(actions.setMessage(''));
+    const response = await fetch(
+      `/api/files?duration=${duration}&date=${date}&timeend=${timeEnd}`,
+      {
+        method: 'POST',
+        body: file,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return await response.json();
   } catch (e) {
-    console.log(e.message);
+    console.error(e.message);
+    return Promise.reject(e.message);
   }
 };
