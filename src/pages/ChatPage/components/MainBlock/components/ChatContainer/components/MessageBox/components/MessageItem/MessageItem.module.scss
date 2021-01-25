@@ -6,18 +6,9 @@
   align-self: flex-start;
 }
 
-.yourAvatar {
-  background-color: #3addff!important;
-}
-
-.hisAvatar {
-  background-color: #305b91!important;
-}
-
 .message {
   margin: 5px;
-  width: 100%;
-  max-width: 390px;
+  max-width: 400px;
   max-height: 350px;
   display: flex;
   //word-wrap: break-word;
@@ -26,17 +17,18 @@
   .innerMessage {
     margin-left: 5px;
     display: grid;
-    background: #ffffff;
     padding: 10px;
     border-radius: 5px;
-    grid-template: auto / 230px auto;
+    grid-template: auto / minmax(185px, auto) auto auto;
+    background-color: #3D4A5D;
     span {
+      color: rgba(255, 255, 255, 0.7);
       word-wrap: break-word;
       overflow: hidden;
     }
     time {
+      color: #819EA7;
       margin-top: auto;
-      color: #716c6c;
       margin-left: 15px;
       text-align: right;
       font-size: 12px;

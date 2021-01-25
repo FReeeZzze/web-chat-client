@@ -7,14 +7,14 @@ const GetLastMessage = (user, lastMessage) => {
   return !lastMessage.from.includes(user) ? (
     <>
       {lastMessage.message
-        ? lastMessage.message.split('').splice(0, 58).join('')
+        ? lastMessage.message.split('').splice(0, 52).join('')
         : 'Голосовое сообщение'}
     </>
   ) : (
     <>
       <div className={s.linkedYou}>Вы: </div>
       {lastMessage.message
-        ? lastMessage.message.split('').splice(0, 58).join('')
+        ? lastMessage.message.split('').splice(0, 52).join('')
         : 'Голосовое сообщение'}
     </>
   );

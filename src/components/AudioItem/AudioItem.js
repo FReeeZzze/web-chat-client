@@ -3,20 +3,19 @@ import { string, number, bool } from 'prop-types';
 import { makeStyles } from '@material-ui/core';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import PauseIcon from '@material-ui/icons/Pause';
-import DoneIcon from '@material-ui/icons/Done';
-import DoneAllIcon from '@material-ui/icons/DoneAll';
 import { secondsToMs } from 'utils/dateFormat';
 import { numberWithDots } from 'utils/other';
+import DeliveredMessage from 'components/DeliveredMessage';
 import AudioVisualiser from './AudioVisualiser';
 
 const useStyles = makeStyles(() => ({
   root: {
     display: 'flex',
     width: '100%',
-    maxWidth: 350,
-    minHeight: 50,
+    maxWidth: 280,
+    minHeight: 40,
     padding: 10,
-    margin: '0 5px',
+    marginLeft: '5px',
     backgroundColor: '#3D4A5D',
     borderRadius: '5px',
     color: '#819EA7',
@@ -24,8 +23,8 @@ const useStyles = makeStyles(() => ({
   },
   button: {
     cursor: 'pointer',
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     backgroundColor: '#86A5CE',
     borderRadius: '30px',
     display: 'flex',
@@ -56,39 +55,47 @@ const useStyles = makeStyles(() => ({
     alignSelf: 'flex-end',
     marginLeft: 'auto',
   },
-  delivered: {
-    marginLeft: 5,
-    display: 'flex',
-    alignSelf: 'flex-end',
-  },
 }));
 
 const AudioItem = ({ timeEnd, duration, date, size, url, delivered }) => {
-  const styles = useStyles();
-  const player = React.useRef({});
   const [isPlaying, setPlaying] = React.useState(false);
   const [timer, setTimer] = React.useState(0);
   const interval = React.useRef({});
+  const audio = React.useMemo(() => new Audio(url), [url]);
+
+  const styles = useStyles();
+
+  React.useEffect(() => {
+    const stopPlayer = () => {
+      setPlaying(false);
+      setTimer(0);
+    };
+    audio.addEventListener('ended', stopPlayer);
+    return () => {
+      audio.removeEventListener('ended', stopPlayer);
+    };
+  }, [audio]);
 
   React.useEffect(() => {
     interval.current = setInterval(() => {
-      if (isPlaying && !player.current.ended && duration > timer) {
+      if (isPlaying && duration > timer) {
         setTimer((prev) => prev + 1);
-      } else setPlaying(false);
+      }
     }, 1000);
+
     return () => {
       clearInterval(interval.current);
     };
-  }, [timer, duration, isPlaying, player]);
+  }, [timer, duration, isPlaying]);
 
   const handlePlayAudio = () => {
     if (isPlaying) {
-      player.current.pause();
+      audio.pause();
+      setPlaying(false);
     } else {
-      player.current.play();
+      audio.play();
+      setPlaying(true);
     }
-    setTimer(0);
-    setPlaying((prev) => !prev);
   };
 
   return (
@@ -100,36 +107,24 @@ const AudioItem = ({ timeEnd, duration, date, size, url, delivered }) => {
         onKeyPress={(e) => e.key === 'Enter' && handlePlayAudio()}
         className={styles.button}
       >
-        {!isPlaying ? (
-          <PlayArrowIcon fontSize="large" />
-        ) : (
-          <PauseIcon fontSize="large" />
-        )}
+        {!isPlaying && <PlayArrowIcon />}
+        {isPlaying && <PauseIcon />}
       </div>
       <div className={styles.inner}>
         <div className={styles.timer}>
-          {timeEnd &&
-            `${secondsToMs(timer)} / ${timeEnd}, ${numberWithDots(size)} КБ`}
+          {isPlaying && (
+            <span>{`${secondsToMs(timer)} / ${timeEnd}, ${numberWithDots(
+              size
+            )} КБ`}</span>
+          )}
+          {!isPlaying && `${timeEnd}, ${numberWithDots(size)} КБ`}
         </div>
         <div className={styles.visualizer}>
-          {Object.keys(player.current).length > 0 && (
-            <AudioVisualiser
-              audio={player.current}
-              isPlaying={isPlaying && !player.current.ended}
-            />
-          )}
+          <AudioVisualiser audio={audio} />
         </div>
       </div>
       <div className={styles.date}>{date}</div>
-      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-      <audio id="RadioPlayerAudioTeg" preload="none" ref={player} src={url} />
-      <div className={styles.delivered}>
-        {delivered ? (
-          <DoneAllIcon fontSize="small" />
-        ) : (
-          <DoneIcon fontSize="small" />
-        )}
-      </div>
+      <DeliveredMessage delivered={delivered} />
     </div>
   );
 };

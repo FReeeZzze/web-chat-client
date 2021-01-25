@@ -14,12 +14,16 @@ const MessageBox = ({ className }) => {
     selectedContact,
   } = useSelector((state) => state.contacts);
   const auth = useContext(AuthContext);
-
   const messageRef = React.useRef({});
 
-  const getNameUser = (it) => {
-    if (it.from === me._id) return me.name;
-    return contacts.find((item) => item._id.includes(it.from))?.name ?? '';
+  const getUser = (message) => {
+    if (message.from.includes(me._id)) return me;
+    return (
+      contacts.find((contact) => contact._id.includes(message.from)) ?? {
+        name: '',
+        avatar: '',
+      }
+    );
   };
 
   const scrollToBottom = () => {
@@ -47,7 +51,8 @@ const MessageBox = ({ className }) => {
             attachments={item.attachments}
             message={item.message}
             date={item.createdAt}
-            name={getNameUser(item)}
+            url={getUser(item)?.avatar}
+            name={getUser(item)?.name}
             isRightPosition={auth.userId === item.from}
           />
         ))}
@@ -64,4 +69,4 @@ MessageBox.propTypes = {
   className: string,
 };
 
-export default MessageBox;
+export default React.memo(MessageBox);

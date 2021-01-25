@@ -2,7 +2,7 @@ const blackTheme = {
   Background: '#0f1012',
   color: 'rgba(255,255,255,0.5)',
   titleColor: '#FFF',
-  activeBG: '#4e83a699',
+  activeBG: 'rgba(71,117,166,0.51)',
   activeColor: '#FFF!important',
   searchBG: 'rgba(255, 255, 255, 0.3)',
   sendPanelBG: '#0f1012',
@@ -12,9 +12,9 @@ const blackTheme = {
 
 const whiteTheme = {
   Background: '#FFF',
-  color: 'rgb(98 96 96)',
+  color: 'rgb(98,96,96)',
   titleColor: '#000',
-  activeBG: 'rgb(109 148 230)',
+  activeBG: 'rgba(71,117,166,0.51)',
   activeColor: '#FFF!important',
   searchBG: 'rgb(119 113 113 / 30%)',
   sendPanelBG: '#FFF',

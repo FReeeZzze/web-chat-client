@@ -13,17 +13,20 @@ const useStyles = makeStyles((theme) => ({
   }),
 }));
 
-const AvatarItem = ({ name, className }) => {
-  const color = React.useMemo(() => {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i += 1) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  }, []);
-
+const AvatarItem = ({ name, className, url }) => {
+  const color = React.useMemo(() => (url[0] === '#' ? url : 'none'), [url]);
   const classes = useStyles({ color });
+
+  if (color === 'none') {
+    return (
+      <Avatar
+        alt={name}
+        src={url}
+        className={`${classes.avatarIcon} ${className}`}
+      />
+    );
+  }
+
   return (
     <Avatar className={`${classes.avatarIcon} ${className}`}>{name[0]}</Avatar>
   );
@@ -32,11 +35,13 @@ const AvatarItem = ({ name, className }) => {
 AvatarItem.defaultProps = {
   name: '',
   className: '',
+  url: '',
 };
 
 AvatarItem.propTypes = {
   name: string,
   className: string,
+  url: string,
 };
 
 export default AvatarItem;

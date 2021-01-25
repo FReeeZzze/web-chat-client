@@ -44,4 +44,4 @@ const ChatPage = () => {
   );
 };
 
-export default ChatPage;
+export default React.memo(ChatPage);

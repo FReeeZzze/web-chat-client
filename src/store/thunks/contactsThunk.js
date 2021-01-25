@@ -58,8 +58,8 @@ export const addContactById = async (request, token, contact) => {
         'Content-Type': 'application/json',
       }
     );
-    console.log('add CONTACT', data.result);
-    return data.result;
+    console.log('added to me this contact: ', contact, data.status);
+    return data.status;
   } catch (e) {
     console.log(e.message);
     return Promise.reject(e.message);

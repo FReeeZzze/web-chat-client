@@ -4,28 +4,29 @@ import { useSelector } from 'react-redux';
 import { Button, InputBase, makeStyles } from '@material-ui/core';
 import MicIcon from '@material-ui/icons/Mic';
 import SendIcon from '@material-ui/icons/Send';
+import AttachFileIcon from '@material-ui/icons/AttachFile';
 import {
   setPanelBG,
   setThemePlaceHolder,
   setChatInput,
 } from 'utils/theme.utils';
-import { ReactMic } from 'react-mic';
 import {
   fetchCreateMessage,
   fetchUploadFile,
 } from 'store/thunks/contactsThunk';
 import useHttp from 'hooks/http.hook';
-import { msToTime, mToMs, msToSeconds } from 'utils/dateFormat';
 import { AuthContext } from 'context/AuthContext';
+import MicroRec from 'components/MicroRec';
+import CSSTransition from 'react-transition-group/CSSTransition';
 
 const useStyles = makeStyles((theme) => ({
   sendBox: (props) => ({
     width: '100%',
+    wordBreak: 'wrap',
     display: 'grid',
-    gridTemplate: 'auto auto / 8fr 2fr 1fr',
+    gridTemplate: 'auto auto / 1fr 8fr 1fr',
     borderTop: '1px solid black',
-    height: '50px',
-    marginTop: 'auto',
+    maxHeight: '250px',
     background: setPanelBG(props.isBlack),
   }),
   chat: (props) => ({
@@ -39,16 +40,21 @@ const useStyles = makeStyles((theme) => ({
       fontSize: '16px',
     },
   }),
-  button: () => ({
-    margin: 'auto 5px auto 10px',
-    color: 'black',
-    background: 'gray',
-    '&:hover': {
-      background: 'gray',
-    },
-  }),
-  microphone: () => ({
+  button: (props) => ({
     margin: 'auto',
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    boxShadow: 'none',
+    transition: props.message ? 'margin .5s easy-in-out' : 'none',
+    '& svg': {
+      fill: !props.isBlack ? '#000' : 'rgb(200,200,200)',
+    },
+    '&:hover': {
+      boxShadow: 'none',
+      background: 'rgba(0, 0, 0, 0)',
+      '& svg': {
+        fill: !props.isBlack ? '#000' : 'rgb(200,200,200)',
+      },
+    },
   }),
   soundWave: (props) => ({
     visibility: props.record ? 'visible' : 'hidden',
@@ -61,23 +67,42 @@ const useStyles = makeStyles((theme) => ({
   icon: (props) => ({
     fill: props.record ? '#f23535' : '#FFF',
   }),
+  iconEnter: {
+    opacity: 0,
+    transform: 'scale(0.9)',
+  },
+  iconEnterActive: {
+    opacity: 1,
+    transform: 'translateX(0)',
+    transition: 'opacity 300ms, transform 300ms',
+  },
+  iconExit: {
+    opacity: 1,
+  },
+  iconExitActive: {
+    opacity: 0,
+    transform: 'scale(0.9)',
+    transition: 'opacity 300ms, transform 300ms',
+  },
 }));
 
 const SendPanel = ({ className }) => {
+  const [uploadData, setUploadData] = React.useState({});
+  const [showMicroIcon, setShowIcon] = React.useState(true);
   const [message, setMessage] = React.useState('');
   const [record, setRecord] = React.useState(false);
-  const [uploadData, setUploadData] = React.useState({});
   const { selected } = useSelector((state) => state.theme);
   const { currentDialog } = useSelector((state) => state.contacts);
   const isBlack = selected === 'black';
-  const classes = useStyles({ isBlack, record });
+  const classes = useStyles({ isBlack, record, message });
   const { request } = useHttp();
   const auth = useContext(AuthContext);
 
+  const getPartner = React.useCallback(() => {
+    return currentDialog.users.filter((user) => !user.includes(auth.userId));
+  }, [auth, currentDialog]);
+
   const handleSendMessage = () => {
-    const partner = currentDialog.users.filter(
-      (user) => !user.includes(auth.userId)
-    );
     setMessage('');
     fetchCreateMessage(
       request,
@@ -85,23 +110,12 @@ const SendPanel = ({ className }) => {
       currentDialog._id,
       message,
       null,
-      partner[0]
+      getPartner()[0]
     );
-  };
-
-  const handleMicro = () => {
-    setRecord((prev) => !prev);
-  };
-
-  const onData = () => {
-    console.log('Вызов с интервалом в 10ms');
   };
 
   React.useEffect(() => {
     if (Object.keys(uploadData).length > 0) {
-      const partner = currentDialog.users.filter(
-        (user) => !user.includes(auth.userId)
-      );
       const { fileData, data } = uploadData;
       fetchUploadFile(auth.token, fileData, data).then((r) => {
         fetchCreateMessage(
@@ -110,60 +124,60 @@ const SendPanel = ({ className }) => {
           currentDialog._id,
           null,
           r.file,
-          partner[0]
-        ).then(() => setUploadData({}));
+          getPartner()[0]
+        );
       });
+      setUploadData({});
     }
-  }, [request, auth, uploadData, currentDialog]);
+  }, [getPartner, request, auth, uploadData, currentDialog]);
 
-  const onStop = (recordedBlob) => {
-    const fileData = new FormData();
-    const ext = recordedBlob.blob.type.split(';')[0].split('/').pop();
-    fileData.append(
-      'fileData',
-      recordedBlob.blob,
-      `${recordedBlob.blob.size}.${ext}`
-    );
-    const data = {
-      timeEnd: mToMs(recordedBlob.stopTime - recordedBlob.startTime),
-      date: msToTime(recordedBlob.stopTime + 7200000),
-      duration: msToSeconds(recordedBlob.stopTime - recordedBlob.startTime),
-    };
-    setUploadData((prev) => ({ ...prev, data, fileData }));
+  const handleMicro = () => {
+    setRecord((prev) => !prev);
+  };
+
+  const handleChangeMessage = (e) => {
+    setMessage(e.target.value);
   };
 
   return (
     <div className={`${classes.sendBox} ${className}`}>
-      <ReactMic
-        record={record}
+      <Button variant="contained" color="primary" className={classes.button}>
+        <AttachFileIcon fontSize="large" className={classes.icon} />
+      </Button>
+      <MicroRec
+        setUploadData={setUploadData}
         className={classes.soundWave}
-        onStop={onStop}
-        onData={onData}
-        strokeColor={setChatInput(isBlack)}
-        backgroundColor={setPanelBG(isBlack)}
+        isBlack={isBlack}
+        record={record}
       />
       <InputBase
         className={classes.chat}
         placeholder="Написать сообщение..."
         value={message}
-        onChange={(e) => setMessage(e.target.value)}
+        onChange={handleChangeMessage}
       />
       <Button
         variant="contained"
         color="primary"
         className={classes.button}
-        onClick={handleSendMessage}
-        endIcon={<SendIcon>Send</SendIcon>}
+        onClick={message ? handleSendMessage : handleMicro}
       >
-        Отправить
-      </Button>
-      <Button
-        variant="contained"
-        color="primary"
-        className={classes.microphone}
-        onClick={handleMicro}
-      >
-        <MicIcon fontSize="large" className={classes.icon} />
+        {showMicroIcon && <MicIcon fontSize="large" className={classes.icon} />}
+        <CSSTransition
+          in={!!message}
+          timeout={300}
+          unmountOnExit
+          classNames={{
+            enter: classes.iconEnter,
+            enterActive: classes.iconEnterActive,
+            exit: classes.iconExit,
+            exitActive: classes.iconExitActive,
+          }}
+          onEnter={() => setShowIcon(false)}
+          onExited={() => setShowIcon(true)}
+        >
+          <SendIcon fontSize="large" className={classes.icon} />
+        </CSSTransition>
       </Button>
     </div>
   );
@@ -177,4 +191,4 @@ SendPanel.propTypes = {
   className: string,
 };
 
-export default SendPanel;
+export default React.memo(SendPanel);

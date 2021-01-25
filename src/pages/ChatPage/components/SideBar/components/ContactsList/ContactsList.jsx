@@ -15,15 +15,16 @@ import LastMessage from './components/LastMessage';
 
 const useStyles = makeStyles(() => ({
   list: {
-    overflowY: 'scroll',
-    marginTop: '15px',
+    overflowY: 'auto',
     height: '100%',
+    marginTop: '15px',
+    position: 'relative',
   },
   default: {
     transition: '100ms background ease-in-out',
     '&:hover': {
       transition: '100ms background ease-in-out',
-      background: 'rgba(255, 255, 255, 0.1)',
+      background: 'rgba(112,160,217,0.06)',
     },
     '&:focus': {
       outline: 'none',
@@ -100,6 +101,7 @@ const ContactsList = ({
           <ContactItem
             key={`key:${contact._id} - ${index}`}
             name={contact.name}
+            url={contact.avatar}
             message={getMessage(contact)}
             className={getClassName(contact)}
             onClick={() => handleClick(contact)}
@@ -123,4 +125,4 @@ ContactsList.propTypes = {
   contacts: array,
 };
 
-export default ContactsList;
+export default React.memo(ContactsList);

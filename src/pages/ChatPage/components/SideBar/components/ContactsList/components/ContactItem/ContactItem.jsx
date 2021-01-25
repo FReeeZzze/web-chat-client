@@ -41,7 +41,7 @@ const useStyles = makeStyles(() => ({
   }),
 }));
 
-const ContactItem = ({ className, name, message, onClick, time }) => {
+const ContactItem = ({ className, name, url, message, onClick, time }) => {
   const { selected } = useSelector((state) => state.theme);
   const isBlack = selected === 'black';
   const styles = useStyles({ isBlack });
@@ -54,7 +54,7 @@ const ContactItem = ({ className, name, message, onClick, time }) => {
       className={`${styles.item} ${className}`}
       onClick={onClick}
     >
-      <AvatarItem name={name} />
+      <AvatarItem name={name} url={url} />
       <span className={styles.userName}>{name}</span>
       <div className={styles.message}>{message}</div>
       <time dateTime={time}>{time}</time>
@@ -68,6 +68,7 @@ ContactItem.propTypes = {
   message: oneOfType([string, object]),
   onClick: func,
   time: string,
+  url: string,
 };
 
 export default ContactItem;

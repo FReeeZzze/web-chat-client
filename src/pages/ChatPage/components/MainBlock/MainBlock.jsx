@@ -14,4 +14,4 @@ const MainBlock = ({ className = '' }) => {
   );
 };
 
-export default MainBlock;
+export default React.memo(MainBlock);

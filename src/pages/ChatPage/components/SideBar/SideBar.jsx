@@ -68,17 +68,19 @@ const SideBar = ({ className }) => {
   React.useEffect(() => {
     const addDialog = (dialog) => {
       socket.emit('DIALOGS:JOIN', dialog._id);
-      if (dialog.users.includes(auth.userId)) {
-        const partner = dialog.users.filter((item) => item !== auth.userId)[0];
-        if (!inMyContacts(contacts, partner)) {
+    };
+
+    const addNewMessage = (message) => {
+      if (message.dialog.users.includes(auth.userId)) {
+        const partner = message.dialog.users.filter(
+          (item) => item !== auth.userId
+        )[0];
+        if (message.to === auth.userId && !inMyContacts(contacts, partner)) {
           addContactById(request, auth.token, partner).then(() => {
             dispatch(getMyContacts(request, auth.token));
           });
         }
       }
-    };
-
-    const addNewMessage = (message) => {
       if (message.dialog._id === currentDialog._id) {
         dispatch(newMessageCurrent(message));
         dispatch(newMessage(message));
@@ -106,11 +108,11 @@ const SideBar = ({ className }) => {
     });
   };
 
-  const handleClose = () => {
+  const handleSearchClose = () => {
     setSearchContacts([]);
   };
 
-  const handleChange = (e) => {
+  const handleSearchChange = (e) => {
     if (e.target.localName === 'li') {
       const contact = searchContacts
         .filter((user) => {
@@ -145,8 +147,8 @@ const SideBar = ({ className }) => {
         <Autocomplete
           id="search-users"
           freeSolo
-          onClose={handleClose}
-          onChange={handleChange}
+          onClose={handleSearchClose}
+          onChange={handleSearchChange}
           options={searchContacts.map((option) => option.name)}
           loading={loading}
           className={s.auto}
